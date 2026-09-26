@@ -1,0 +1,65 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { defaultCategories } from '../data/defaultCategories'
+import type { Category, Transaction, TransactionType } from '../types'
+
+interface FinanceState {
+  transactions: Transaction[]
+  categories: Category[]
+  addTransaction: (transaction: Omit<Transaction, 'id'>) => void
+  updateTransaction: (id: string, transaction: Omit<Transaction, 'id'>) => void
+  deleteTransaction: (id: string) => void
+  addCategory: (name: string, type: TransactionType, color: string) => void
+  deleteCategory: (id: string) => boolean
+  importData: (data: { transactions: Transaction[]; categories: Category[] }) => void
+  resetAll: () => void
+}
+
+function generateId(): string {
+  return crypto.randomUUID()
+}
+
+export const useFinanceStore = create<FinanceState>()(
+  persist(
+    (set, get) => ({
+      transactions: [],
+      categories: defaultCategories,
+
+      addTransaction: (transaction) =>
+        set((state) => ({
+          transactions: [...state.transactions, { ...transaction, id: generateId() }],
+        })),
+
+      updateTransaction: (id, transaction) =>
+        set((state) => ({
+          transactions: state.transactions.map((t) =>
+            t.id === id ? { ...transaction, id } : t,
+          ),
+        })),
+
+      deleteTransaction: (id) =>
+        set((state) => ({
+          transactions: state.transactions.filter((t) => t.id !== id),
+        })),
+
+      addCategory: (name, type, color) =>
+        set((state) => ({
+          categories: [...state.categories, { id: generateId(), name, type, color }],
+        })),
+
+      deleteCategory: (id) => {
+        const inUse = get().transactions.some((t) => t.categoryId === id)
+        if (inUse) return false
+        set((state) => ({
+          categories: state.categories.filter((c) => c.id !== id),
+        }))
+        return true
+      },
+
+      importData: (data) => set({ transactions: data.transactions, categories: data.categories }),
+
+      resetAll: () => set({ transactions: [], categories: defaultCategories }),
+    }),
+    { name: 'financas-pf' },
+  ),
+)
