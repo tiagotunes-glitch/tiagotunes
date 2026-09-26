@@ -23,6 +23,15 @@ npm run dev
 
 Acesse `http://localhost:5173`.
 
+## Testes
+
+```bash
+npm run test
+```
+
+Cobre as funções de cálculo (totais mensais, saldo acumulado, despesas por
+categoria) e de formatação.
+
 ## Build de produção
 
 ```bash
