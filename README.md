@@ -3,6 +3,12 @@
 Aplicativo web para controle financeiro de pessoa física: lançamentos de
 receitas e despesas, categorização, resumo mensal e gráficos.
 
+**Acesse pelo navegador (computador ou celular):**
+https://tiagotunes-glitch.github.io/tiagotunes/
+
+No celular, abra o link no navegador e use "Adicionar à tela de início" para
+um atalho com aparência de app.
+
 ## Funcionalidades
 
 - Cadastro de lançamentos (receita/despesa) com descrição, valor, data e categoria
@@ -52,3 +58,14 @@ Todos os dados ficam salvos apenas no navegador utilizado (chave
 `financas-pf` no `localStorage`). Limpar o cache do navegador ou trocar de
 dispositivo apaga o histórico local — use a aba **Dados** para exportar
 backups periodicamente.
+
+**Importante:** os dados do celular e do computador são independentes (cada
+navegador/dispositivo tem seu próprio `localStorage`). Para usar o mesmo
+histórico nos dois, exporte o backup em um e importe no outro pela aba
+**Dados**.
+
+## Publicação (GitHub Pages)
+
+O deploy é automático via GitHub Actions (`.github/workflows/deploy-pages.yml`)
+a cada push na branch `main`. É necessário habilitar uma vez, em
+**Settings → Pages**, a opção "Source: GitHub Actions" no repositório.
