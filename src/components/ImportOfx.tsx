@@ -47,11 +47,23 @@ export function ImportOfx() {
     }
   }
 
+  function categoryIdFor(t: OfxTransaction): string {
+    if (t.investmentMove === 'aplicacao') {
+      const category = categories.find((c) => c.id === 'cat-aplicacao-investimento')
+      if (category) return category.id
+    }
+    if (t.investmentMove === 'resgate') {
+      const category = categories.find((c) => c.id === 'cat-resgate-investimento')
+      if (category) return category.id
+    }
+    return t.type === 'despesa' ? despesaCategoryId : receitaCategoryId
+  }
+
   function handleConfirmImport() {
     if (!parsed) return
     const withCategory = parsed.map((t) => ({
       ...t,
-      categoryId: t.type === 'despesa' ? despesaCategoryId : receitaCategoryId,
+      categoryId: categoryIdFor(t),
     }))
     const outcome = importTransactions(withCategory)
     setResult(outcome)
@@ -71,6 +83,7 @@ export function ImportOfx() {
   const totalReceitas = parsed
     ?.filter((t) => t.type === 'receita')
     .reduce((sum, t) => sum + t.amount, 0)
+  const investmentMoveCount = parsed?.filter((t) => t.investmentMove).length ?? 0
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
@@ -155,9 +168,18 @@ export function ImportOfx() {
           </div>
 
           <p className="text-xs text-slate-500">
-            Todos os lançamentos entram com a mesma categoria; você pode reclassificar cada um
-            depois na aba Lançamentos.
+            Lançamentos sem indicação de aplicação/resgate entram com a categoria acima escolhida;
+            você pode reclassificar cada um depois na aba Lançamentos.
           </p>
+
+          {investmentMoveCount > 0 && (
+            <p className="rounded-lg bg-cyan-950/50 px-3 py-2 text-sm text-cyan-300">
+              🔁 {investmentMoveCount} lançamento(s) identificado(s) automaticamente como
+              aplicação/resgate em investimentos — categorizados à parte e{' '}
+              <strong>não entram</strong> nos totais de receita/despesa do painel, por serem
+              transferência entre suas próprias contas.
+            </p>
+          )}
 
           <div className="max-h-64 overflow-y-auto rounded-lg border border-slate-800">
             <ul className="divide-y divide-slate-800">
@@ -167,7 +189,14 @@ export function ImportOfx() {
                   className="flex items-center justify-between px-3 py-2 text-sm"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-slate-200">{t.description}</p>
+                    <p className="truncate text-slate-200">
+                      {t.description}
+                      {t.investmentMove && (
+                        <span className="ml-2 rounded bg-cyan-950 px-1.5 py-0.5 text-xs text-cyan-300">
+                          {t.investmentMove === 'aplicacao' ? 'Aplicação' : 'Resgate'}
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-slate-500">{formatDate(t.date)}</p>
                   </div>
                   <span

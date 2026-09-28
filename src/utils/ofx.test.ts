@@ -112,3 +112,52 @@ describe('parseOfx', () => {
     expect(parseOfx(broken)).toEqual([])
   })
 })
+
+describe('parseOfx investment move detection', () => {
+  it('flags a debit whose description mentions APLICA as aplicacao', () => {
+    const ofx = `
+<STMTTRN>
+<TRNTYPE>DEBIT
+<DTPOSTED>20240120000000
+<TRNAMT>-1000.00
+<FITID>1
+<MEMO>APLICACAO RDB AUTOMATICA
+</STMTTRN>
+`
+    const [t] = parseOfx(ofx)
+    expect(t.investmentMove).toBe('aplicacao')
+  })
+
+  it('flags a credit whose description mentions RESGATE as resgate', () => {
+    const ofx = `
+<STMTTRN>
+<TRNTYPE>CREDIT
+<DTPOSTED>20240122000000
+<TRNAMT>1050.00
+<FITID>2
+<MEMO>RESGATE RDB AUTOMATICO
+</STMTTRN>
+`
+    const [t] = parseOfx(ofx)
+    expect(t.investmentMove).toBe('resgate')
+  })
+
+  it('does not flag a credit that mentions APLICA (wrong direction)', () => {
+    const ofx = `
+<STMTTRN>
+<TRNTYPE>CREDIT
+<DTPOSTED>20240120000000
+<TRNAMT>1000.00
+<FITID>3
+<MEMO>APLICACAO ESTORNADA
+</STMTTRN>
+`
+    const [t] = parseOfx(ofx)
+    expect(t.investmentMove).toBeUndefined()
+  })
+
+  it('leaves ordinary transactions without investmentMove', () => {
+    const [pagamento] = parseOfx(sampleOfx)
+    expect(pagamento.investmentMove).toBeUndefined()
+  })
+})

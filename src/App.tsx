@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CategoriesManager } from './components/CategoriesManager'
 import { DataTools } from './components/DataTools'
 import { ExpenseByCategoryChart } from './components/ExpenseByCategoryChart'
@@ -9,6 +9,7 @@ import { SummaryCards } from './components/SummaryCards'
 import { TransactionForm } from './components/TransactionForm'
 import { TransactionList } from './components/TransactionList'
 import { useFinanceStore } from './store/useFinanceStore'
+import { investmentTransferCategories } from './data/defaultCategories'
 import type { Transaction } from './types'
 import { currentMonthKey } from './utils/format'
 import { balanceUpTo, expensesByCategory, monthlyTrend, totalsForMonth } from './utils/selectors'
@@ -29,17 +30,29 @@ function App() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Transaction | null>(null)
 
-  const { receitas, despesas, saldo } = useMemo(
-    () => totalsForMonth(transactions, monthKey),
-    [transactions, monthKey],
-  )
-  const saldoTotal = useMemo(() => balanceUpTo(transactions, monthKey), [transactions, monthKey])
   const categories = useFinanceStore((s) => s.categories)
+  const ensureCategories = useFinanceStore((s) => s.ensureCategories)
+
+  useEffect(() => {
+    ensureCategories(investmentTransferCategories)
+  }, [ensureCategories])
+
+  const { receitas, despesas, saldo } = useMemo(
+    () => totalsForMonth(transactions, categories, monthKey),
+    [transactions, categories, monthKey],
+  )
+  const saldoTotal = useMemo(
+    () => balanceUpTo(transactions, categories, monthKey),
+    [transactions, categories, monthKey],
+  )
   const expenseData = useMemo(
     () => expensesByCategory(transactions, categories, monthKey),
     [transactions, categories, monthKey],
   )
-  const trendData = useMemo(() => monthlyTrend(transactions, monthKey), [transactions, monthKey])
+  const trendData = useMemo(
+    () => monthlyTrend(transactions, categories, monthKey),
+    [transactions, categories, monthKey],
+  )
   const monthTransactions = useMemo(
     () => transactions.filter((t) => t.date.slice(0, 7) === monthKey),
     [transactions, monthKey],

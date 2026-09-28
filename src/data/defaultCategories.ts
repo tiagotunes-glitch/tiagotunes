@@ -1,5 +1,24 @@
 import type { Category } from '../types'
 
+// Money moving into or out of an investment (same owner, same net worth) is a
+// transfer, not real income or expense — kept out of receita/despesa totals.
+export const investmentTransferCategories: Category[] = [
+  {
+    id: 'cat-aplicacao-investimento',
+    name: 'Aplicação em investimentos',
+    type: 'despesa',
+    color: '#0891b2',
+    excludeFromTotals: true,
+  },
+  {
+    id: 'cat-resgate-investimento',
+    name: 'Resgate de investimentos',
+    type: 'receita',
+    color: '#0891b2',
+    excludeFromTotals: true,
+  },
+]
+
 export const defaultCategories: Category[] = [
   { id: 'cat-salario', name: 'Salário', type: 'receita', color: '#16a34a' },
   { id: 'cat-freelance', name: 'Freelance / Extra', type: 'receita', color: '#22c55e' },
@@ -15,4 +34,6 @@ export const defaultCategories: Category[] = [
   { id: 'cat-assinaturas', name: 'Assinaturas', type: 'despesa', color: '#0ea5e9' },
   { id: 'cat-cartao', name: 'Cartão de crédito', type: 'despesa', color: '#f43f5e' },
   { id: 'cat-outros-despesa', name: 'Outras despesas', type: 'despesa', color: '#a8a29e' },
+
+  ...investmentTransferCategories,
 ]

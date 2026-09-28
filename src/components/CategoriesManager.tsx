@@ -75,7 +75,13 @@ export function CategoriesManager() {
           <h3 className="mb-2 text-sm font-semibold text-emerald-400">Receitas</h3>
           <ul className="space-y-1">
             {receitaCategories.map((c) => (
-              <CategoryRow key={c.id} name={c.name} color={c.color} onDelete={() => handleDelete(c.id)} />
+              <CategoryRow
+                key={c.id}
+                name={c.name}
+                color={c.color}
+                excludeFromTotals={c.excludeFromTotals}
+                onDelete={() => handleDelete(c.id)}
+              />
             ))}
           </ul>
         </div>
@@ -83,7 +89,13 @@ export function CategoriesManager() {
           <h3 className="mb-2 text-sm font-semibold text-rose-400">Despesas</h3>
           <ul className="space-y-1">
             {despesaCategories.map((c) => (
-              <CategoryRow key={c.id} name={c.name} color={c.color} onDelete={() => handleDelete(c.id)} />
+              <CategoryRow
+                key={c.id}
+                name={c.name}
+                color={c.color}
+                excludeFromTotals={c.excludeFromTotals}
+                onDelete={() => handleDelete(c.id)}
+              />
             ))}
           </ul>
         </div>
@@ -95,10 +107,12 @@ export function CategoriesManager() {
 function CategoryRow({
   name,
   color,
+  excludeFromTotals,
   onDelete,
 }: {
   name: string
   color: string
+  excludeFromTotals?: boolean
   onDelete: () => void
 }) {
   return (
@@ -106,6 +120,14 @@ function CategoryRow({
       <span className="flex items-center gap-2 text-sm text-slate-200">
         <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
         {name}
+        {excludeFromTotals && (
+          <span
+            className="rounded bg-cyan-950 px-1.5 py-0.5 text-xs text-cyan-300"
+            title="Transferência entre suas contas — não entra nos totais de receita/despesa"
+          >
+            transferência
+          </span>
+        )}
       </span>
       <button
         type="button"
