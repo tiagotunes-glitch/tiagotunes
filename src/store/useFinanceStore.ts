@@ -12,6 +12,9 @@ interface FinanceState {
   addCategory: (name: string, type: TransactionType, color: string) => void
   deleteCategory: (id: string) => boolean
   importData: (data: { transactions: Transaction[]; categories: Category[] }) => void
+  importTransactions: (
+    transactions: Omit<Transaction, 'id'>[],
+  ) => { imported: number; skipped: number }
   resetAll: () => void
 }
 
@@ -57,6 +60,28 @@ export const useFinanceStore = create<FinanceState>()(
       },
 
       importData: (data) => set({ transactions: data.transactions, categories: data.categories }),
+
+      importTransactions: (transactions) => {
+        const existingExternalIds = new Set(
+          get()
+            .transactions.map((t) => t.externalId)
+            .filter((id): id is string => Boolean(id)),
+        )
+        const seen = new Set<string>()
+        const toAdd = transactions.filter((t) => {
+          if (!t.externalId) return true
+          if (existingExternalIds.has(t.externalId) || seen.has(t.externalId)) return false
+          seen.add(t.externalId)
+          return true
+        })
+        set((state) => ({
+          transactions: [
+            ...state.transactions,
+            ...toAdd.map((t) => ({ ...t, id: generateId() })),
+          ],
+        }))
+        return { imported: toAdd.length, skipped: transactions.length - toAdd.length }
+      },
 
       resetAll: () => set({ transactions: [], categories: defaultCategories }),
     }),

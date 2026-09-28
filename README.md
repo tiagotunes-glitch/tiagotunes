@@ -17,6 +17,8 @@ um atalho com aparência de app.
 - Navegação entre meses
 - Lista de lançamentos com busca e filtros por tipo/categoria, edição e exclusão
 - Gerenciamento de categorias (padrão + personalizadas)
+- Importação de extrato bancário em OFX (Banco Inter e outros bancos que exportam OFX), com
+  deduplicação automática em reimportações
 - Exportação de backup em JSON e de lançamentos em CSV, e importação de backup
 - Dados salvos localmente no navegador (`localStorage`) — não há backend nem envio de dados a servidores
 

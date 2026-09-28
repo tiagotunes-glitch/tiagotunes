@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { CategoriesManager } from './components/CategoriesManager'
 import { DataTools } from './components/DataTools'
 import { ExpenseByCategoryChart } from './components/ExpenseByCategoryChart'
+import { ImportOfx } from './components/ImportOfx'
 import { MonthNavigator } from './components/MonthNavigator'
 import { MonthlyTrendChart } from './components/MonthlyTrendChart'
 import { SummaryCards } from './components/SummaryCards'
@@ -119,7 +120,12 @@ function App() {
 
         {tab === 'categorias' && <CategoriesManager />}
 
-        {tab === 'dados' && <DataTools />}
+        {tab === 'dados' && (
+          <div className="space-y-6">
+            <ImportOfx />
+            <DataTools />
+          </div>
+        )}
       </main>
 
       {formOpen && <TransactionForm editing={editing} onClose={() => setFormOpen(false)} />}
