@@ -14,4 +14,5 @@ export interface Transaction {
   amount: number // always stored positive
   type: TransactionType
   categoryId: string
+  externalId?: string // bank transaction id (e.g. OFX FITID), used to avoid duplicate imports
 }
