@@ -5,6 +5,10 @@ export interface Category {
   name: string
   type: TransactionType
   color: string
+  // Transfers between the person's own accounts (e.g. moving money into/out of
+  // an investment) are not real income or expense, so they're kept out of the
+  // dashboard's receita/despesa totals and charts.
+  excludeFromTotals?: boolean
 }
 
 export interface Transaction {

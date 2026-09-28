@@ -19,6 +19,9 @@ um atalho com aparência de app.
 - Gerenciamento de categorias (padrão + personalizadas)
 - Importação de extrato bancário em OFX (Banco Inter e outros bancos que exportam OFX), com
   deduplicação automática em reimportações
+- Detecção automática de aplicação/resgate em investimentos na importação de OFX: são
+  categorizados à parte e excluídos dos totais de receita/despesa do painel, por serem
+  transferência entre as próprias contas da pessoa (não é ganho nem gasto real)
 - Exportação de backup em JSON e de lançamentos em CSV, e importação de backup
 - Dados salvos localmente no navegador (`localStorage`) — não há backend nem envio de dados a servidores
 

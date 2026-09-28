@@ -1,11 +1,16 @@
 import type { TransactionType } from '../types'
 
+export type InvestmentMove = 'aplicacao' | 'resgate'
+
 export interface OfxTransaction {
   date: string // ISO yyyy-mm-dd
   description: string
   amount: number // always positive
   type: TransactionType
   externalId?: string
+  // Detected from the description: money moving into ('aplicacao') or out of
+  // ('resgate') an investment held at the same bank.
+  investmentMove?: InvestmentMove
 }
 
 export async function readOfxFile(file: File): Promise<string> {
@@ -36,6 +41,18 @@ function parseOfxDate(raw: string): string | undefined {
   return `${year}-${month}-${day}`
 }
 
+const APLICACAO_PATTERN = /APLICA/i
+const RESGATE_PATTERN = /RESGATE/i
+
+function detectInvestmentMove(
+  description: string,
+  type: TransactionType,
+): InvestmentMove | undefined {
+  if (type === 'despesa' && APLICACAO_PATTERN.test(description)) return 'aplicacao'
+  if (type === 'receita' && RESGATE_PATTERN.test(description)) return 'resgate'
+  return undefined
+}
+
 export function parseOfx(text: string): OfxTransaction[] {
   const transactions: OfxTransaction[] = []
   const blockRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi
@@ -53,13 +70,16 @@ export function parseOfx(text: string): OfxTransaction[] {
     const memo = extractField(block, 'MEMO')
     const name = extractField(block, 'NAME')
     const fitId = extractField(block, 'FITID')
+    const description = memo || name || 'Lançamento importado'
+    const type: TransactionType = amount < 0 ? 'despesa' : 'receita'
 
     transactions.push({
       date,
-      description: memo || name || 'Lançamento importado',
+      description,
       amount: Math.abs(amount),
-      type: amount < 0 ? 'despesa' : 'receita',
+      type,
       externalId: fitId,
+      investmentMove: detectInvestmentMove(description, type),
     })
   }
   return transactions

@@ -11,6 +11,7 @@ interface FinanceState {
   deleteTransaction: (id: string) => void
   addCategory: (name: string, type: TransactionType, color: string) => void
   deleteCategory: (id: string) => boolean
+  ensureCategories: (categories: Category[]) => void
   importData: (data: { transactions: Transaction[]; categories: Category[] }) => void
   importTransactions: (
     transactions: Omit<Transaction, 'id'>[],
@@ -58,6 +59,14 @@ export const useFinanceStore = create<FinanceState>()(
         }))
         return true
       },
+
+      ensureCategories: (categories) =>
+        set((state) => {
+          const existingIds = new Set(state.categories.map((c) => c.id))
+          const missing = categories.filter((c) => !existingIds.has(c.id))
+          if (missing.length === 0) return state
+          return { categories: [...state.categories, ...missing] }
+        }),
 
       importData: (data) => set({ transactions: data.transactions, categories: data.categories }),
 
